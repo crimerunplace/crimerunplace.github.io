@@ -1,15 +1,370 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRIME</title>
-    <script>
-        window.location.replace("https://crime.run.place");
-    </script>
-    <meta http-equiv="refresh" content="0;url=https://crime.run.place">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050505">
+<title>crime.run.place</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050505;
+  --fg:#f6f4fb;
+  --muted:#9b96a3;
+  --dim:#6f6978;
+  --line:rgba(255,255,255,.1);
+  --line-strong:rgba(255,255,255,.22);
+  --btn:#f5f5f5;
+  --btn-fg:#100d15;
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--fg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+/* ---------- INTRO ---------- */
+.intro{position:fixed;inset:0;z-index:10;display:grid;place-items:center;background:#050505;overflow:hidden;transition:opacity 1s cubic-bezier(.7,0,.2,1),visibility 1s}
+.intro::before{content:"";position:absolute;width:min(74vw,680px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.13),rgba(255,255,255,0) 68%);filter:blur(14px);animation:glowBreathe 3.8s ease-in-out infinite alternate}
+.intro.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.intro-inner{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.intro-mark{position:relative;width:clamp(125px,18vw,180px);aspect-ratio:1;display:grid;place-items:center;opacity:0;transform:translateY(16px) scale(.82);animation:logoEnter 1.1s cubic-bezier(.16,1,.3,1) .15s forwards,logoFloat 4s ease-in-out 1.3s infinite}
+.intro-mark::before{content:"";position:absolute;inset:-14%;border:1px solid rgba(255,255,255,.18);border-radius:35%;transform:rotate(12deg);animation:orbit 12s linear infinite}
+.intro-mark::after{content:"";position:absolute;inset:-6%;border-radius:34%;box-shadow:0 0 26px rgba(255,255,255,.13),0 0 75px rgba(255,255,255,.08);pointer-events:none}
+.intro-logo{position:relative;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(255,255,255,.25)) drop-shadow(0 0 32px rgba(255,255,255,.12))}
+.intro-title{margin-top:27px;font-size:clamp(21px,4vw,31px);font-weight:720;letter-spacing:-.075em;opacity:0;transform:translateY(10px);animation:textEnter .75s ease .55s forwards}
+.intro-title .dot{color:#929292}
+.intro-subtitle{margin-top:12px;color:#777;font-size:9px;letter-spacing:.3em;text-transform:uppercase;opacity:0;animation:textEnter .75s ease .85s forwards}
+
+/* ---------- VERIFY / CHALLENGE ---------- */
+.verify-screen{position:fixed;inset:0;z-index:8;display:grid;place-items:center;padding:26px;background:#050505;opacity:0;visibility:hidden;transition:opacity .7s ease,visibility .7s ease;font-family:Inter,Arial,Helvetica,sans-serif}
+.verify-screen.show{opacity:1;visibility:visible}
+.challenge-shell{width:min(100%,768px);background:#101010;border:1px solid #292929;border-radius:9px;overflow:hidden;box-shadow:0 18px 70px rgba(0,0,0,.42),0 0 28px rgba(255,255,255,.025);color:#f3f3f3}
+.challenge-main{min-height:349px;display:grid;grid-template-columns:260px 1px minmax(0,1fr);align-items:center;padding:38px 38px 34px 0}
+.challenge-emblem{display:grid;place-items:center;height:100%;padding:0}
+.challenge-logo{width:190px;height:247px;object-fit:contain;object-position:center;filter:drop-shadow(0 0 14px rgba(255,255,255,.16)) drop-shadow(0 0 34px rgba(255,255,255,.08))}
+.challenge-emblem svg{width:146px;height:236px;filter:drop-shadow(0 0 18px rgba(255,255,255,.12))}
+.challenge-divider{width:1px;height:250px;background:#4a4a4a;box-shadow:1px 0 0 rgba(255,255,255,.025)}
+.challenge-content{padding-left:32px;min-width:0;align-self:center}
+.challenge-content h2{font-size:clamp(21px,3vw,31px);line-height:1.15;font-weight:700;letter-spacing:-.035em;margin:0 0 17px;white-space:nowrap}
+.challenge-content h2 span{background:linear-gradient(100deg,#ffffff 0%,#cfcfcf 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.challenge-content p{font-size:14px;line-height:1.55;color:#c8c8d0;margin-bottom:14px}
+.challenge-widget{width:300px;max-width:100%;height:66px;border:0;border-radius:0;background:#111;display:flex;align-items:center;gap:12px;padding:0 16px;text-align:left;color:#ddd;cursor:pointer;transition:background .2s}
+.challenge-widget:hover{background:#151515}
+.challenge-check{width:20px;height:20px;flex:0 0 20px;border:1.5px solid #858585;background:#171717;display:grid;place-items:center}
+.challenge-checkmark{font-size:15px;opacity:0;transform:scale(.7);transition:opacity .2s,transform .2s}
+.challenge-widget-label{font-size:11px;color:#aaa;flex:1}
+.challenge-spinner{width:17px;height:17px;border:2px solid #424242;border-top-color:#ffffff;border-radius:50%;opacity:0}
+.challenge-widget.checked .challenge-check{background:#f1bfd8;border-color:#f1bfd8;color:#161616}
+.challenge-widget.checked .challenge-checkmark{opacity:1;transform:scale(1)}
+.challenge-widget.checked .challenge-spinner{opacity:1;animation:challengeSpin .8s linear infinite}
+.challenge-demo{margin-top:8px;color:#a4a4aa;font-size:8px;letter-spacing:.025em;line-height:1.4}
+.challenge-footer{min-height:53px;background:#080808;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:12px;color:#f4f4f4}
+.challenge-footer strong{font-weight:600}
+.challenge-footer code{color:#b5b5c4;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;margin-left:5px}
+.challenge-footer-tag{font-size:8px;letter-spacing:.14em;color:#777}
+.verify-screen.passed .challenge-shell{animation:verifyPassed .45s ease}
+@keyframes challengeSpin{to{transform:rotate(360deg)}}
+@keyframes verifyPassed{50%{transform:scale(1.01)}}
+@media(max-width:650px){.verify-screen{padding:16px}.challenge-main{grid-template-columns:170px 1px minmax(0,1fr);padding:24px 16px 24px 0;min-height:0}.challenge-emblem{padding:0;min-height:170px}.challenge-logo{width:130px;height:130px}.challenge-divider{height:170px}.challenge-content{padding-left:16px}.challenge-content h2{white-space:normal;font-size:clamp(19px,5vw,25px);margin-bottom:12px}.challenge-content p{font-size:12px}.desktop-break{display:none}.challenge-widget{height:58px;padding:0 10px}.challenge-widget-label{font-size:10px}.challenge-demo{font-size:7px}.challenge-footer{align-items:flex-start;flex-direction:column;justify-content:center;padding:12px 15px;gap:6px}.challenge-footer-tag{display:none}}
+
+/* ==========================================================
+   SITE — продолжение загрузки
+   ========================================================== */
+.site{
+  position:relative;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  /* симметричные отступы — центр контента совпадает с центром вьюпорта,
+     значит и со свечением */
+  padding:72px 24px;
+  overflow:hidden;
+  isolation:isolate;
+  opacity:0;
+  transition:opacity .9s ease;
+}
+.site.show{opacity:1}
+
+/* свечение точно по центру вьюпорта — тот же размер, блюр и цвет, что в интро */
+.site::before{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:50%;
+  width:min(74vw,680px);
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,255,255,.13),rgba(255,255,255,0) 68%);
+  filter:blur(14px);
+  animation:glowBreatheCenter 3.8s ease-in-out infinite alternate;
+  z-index:-1;
+  pointer-events:none;
+}
+
+/* ---- блок по центру: визуально тот же, что в интро ---- */
+.screen-inner{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+
+/* логотип с орбитой — точно как в интро */
+.screen-mark{
+  position:relative;
+  width:clamp(125px,18vw,180px);
+  aspect-ratio:1;
+  display:grid;
+  place-items:center;
+  opacity:0;
+}
+.screen-mark::before{
+  content:"";
+  position:absolute;
+  inset:-14%;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:35%;
+  transform:rotate(12deg);
+  animation:orbit 12s linear infinite;
+}
+.screen-mark::after{
+  content:"";
+  position:absolute;
+  inset:-6%;
+  border-radius:34%;
+  box-shadow:0 0 26px rgba(255,255,255,.13),0 0 75px rgba(255,255,255,.08);
+  pointer-events:none;
+}
+.screen-mark img{
+  position:relative;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 0 10px rgba(255,255,255,.25)) drop-shadow(0 0 32px rgba(255,255,255,.12));
+}
+
+/* заголовок и подпись */
+.screen-title{
+  margin-top:27px;
+  font-size:clamp(21px,4vw,31px);
+  font-weight:720;
+  letter-spacing:-.075em;
+  opacity:0;
+  transform:translateY(10px);
+}
+.screen-title .dot{color:#929292}
+.screen-subtitle{
+  margin-top:12px;
+  color:#777;
+  font-size:9px;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  opacity:0;
+  transform:translateY(10px);
+}
+
+/* тонкий разделитель перед кнопками */
+.screen-divider{
+  width:36px;
+  height:1px;
+  margin-top:42px;
+  background:var(--line-strong);
+  opacity:0;
+  transform:scaleX(.4);
+}
+
+/* кнопки */
+.screen-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:30px;
+  opacity:0;
+  transform:translateY(8px);
+}
+.cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:11px 24px;
+  border-radius:10px;
+  font-size:12.5px;
+  font-weight:500;
+  letter-spacing:.01em;
+  line-height:1;
+  transition:transform .2s,background .2s,border-color .2s,box-shadow .25s,color .2s;
+}
+.cta-solid{
+  background:var(--btn);
+  color:var(--btn-fg);
+}
+.cta-solid:hover{
+  transform:translateY(-2px);
+  background:#fff;
+  box-shadow:0 12px 34px rgba(255,255,255,.14);
+}
+.cta-ghost{
+  border:1px solid var(--line-strong);
+  color:var(--fg);
+  background:transparent;
+}
+.cta-ghost:hover{
+  transform:translateY(-2px);
+  border-color:rgba(255,255,255,.36);
+  background:rgba(255,255,255,.05);
+}
+.cta:active{transform:translateY(0)}
+
+/* футер */
+.screen-footer{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:18px;
+  padding:24px;
+  font-size:10.5px;
+  letter-spacing:.06em;
+  color:var(--dim);
+}
+.screen-footer a{transition:color .2s}
+.screen-footer a:hover{color:var(--muted)}
+.screen-footer .sep{color:rgba(255,255,255,.14)}
+
+/* ---- запуск анимаций при .show (продолжение интро) ---- */
+.site.show .screen-mark{animation:logoEnter 1s cubic-bezier(.16,1,.3,1) .05s forwards,logoFloat 4s ease-in-out 1.3s infinite}
+.site.show .screen-title{animation:textEnter .7s ease .45s forwards}
+.site.show .screen-subtitle{animation:textEnter .7s ease .7s forwards}
+.site.show .screen-divider{animation:dividerIn .7s cubic-bezier(.16,1,.3,1) .9s forwards}
+.site.show .screen-actions{animation:textEnter .7s ease 1.05s forwards}
+
+@keyframes dividerIn{to{opacity:1;transform:scaleX(1)}}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes logoEnter{to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes textEnter{to{opacity:1;transform:translateY(0)}}
+@keyframes orbit{to{transform:rotate(372deg)}}
+/* для интро: центрируется гридом, translate не нужен */
+@keyframes glowBreathe{
+  from{transform:scale(.88);opacity:.55}
+  to{transform:scale(1.12);opacity:1}
+}
+/* для сайта: центрируется через top/left:50%, поэтому нужен translate */
+@keyframes glowBreatheCenter{
+  from{transform:translate(-50%,-50%) scale(.88);opacity:.55}
+  to{transform:translate(-50%,-50%) scale(1.12);opacity:1}
+}
+@keyframes logoFloat{0%,100%{translate:0 0;rotate:-1deg}50%{translate:0 -12px;rotate:1deg}}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:520px){
+  .site{padding:56px 22px 72px}
+  .screen-actions{width:100%;max-width:280px;flex-direction:column}
+  .screen-actions .cta{width:100%}
+  .screen-divider{margin-top:34px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
 </head>
 <body>
-    <a href="https://crime.run.place">Перейти на CRIME</a>
+
+<!-- INTRO (без изменений) -->
+<section class="intro" id="intro" aria-label="Заставка crime.run.place">
+  <div class="intro-inner">
+    <div class="intro-mark"><img class="intro-logo" src="logo.png" alt="Логотип crime.run.place"></div>
+    <div class="intro-title">crime<span class="dot">.</span>run<span class="dot">.</span>place</div>
+    <div class="intro-subtitle">A quiet kind of different</div>
+  </div>
+</section>
+
+<!-- VERIFY (без изменений) -->
+<section class="verify-screen" id="verifyScreen" aria-label="Демонстрационная проверка">
+  <div class="challenge-shell">
+    <div class="challenge-main">
+      <div class="challenge-emblem" aria-hidden="true">
+        <img src="logo.png" alt="" class="challenge-logo">
+      </div>
+      <div class="challenge-divider"></div>
+      <div class="challenge-content">
+        <h2><span>crime.run.place</span> challenges you!</h2>
+        <p>Solve the challenge below to be redirected to the requested<br class="desktop-break"> content.</p>
+        <button class="challenge-widget" id="verifyCheckbox" type="button" aria-pressed="false">
+          <span class="challenge-check"><span class="challenge-checkmark">✓</span></span>
+          <span class="challenge-widget-label" id="verifyStatus">Click to verify you are human</span>
+          <span class="challenge-spinner" aria-hidden="true"></span>
+        </button>
+        <div class="challenge-demo">DEMO PLACEHOLDER — real Cloudflare verification is not connected</div>
+      </div>
+    </div>
+    <div class="challenge-footer">
+      <span><strong>Your access ID is</strong> <code>c4e4f18bdec45430</code></span>
+      <span class="challenge-footer-tag">SECURITY CHALLENGE</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SITE ================= -->
+<div class="site" id="site">
+
+  <main class="screen-inner">
+    <div class="screen-mark"><img src="logo.png" alt="crime.run.place"></div>
+
+    <h1 class="screen-title">crime<span class="dot">.</span>run<span class="dot">.</span>place</h1>
+    <p class="screen-subtitle">A quiet kind of different</p>
+
+    <span class="screen-divider"></span>
+
+    <div class="screen-actions">
+      <a href="#login" class="cta cta-solid">Log in</a>
+      <a href="#register" class="cta cta-ghost">Register</a>
+    </div>
+  </main>
+
+  <footer class="screen-footer">
+    <a href="terms.html">Terms</a>
+    <span class="sep">·</span>
+    <a href="privacy.html">Privacy</a>
+  </footer>
+
+</div>
+
+<script>
+window.addEventListener('load',()=>{
+  const intro=document.getElementById('intro');
+  const verify=document.getElementById('verifyScreen');
+  const checkbox=document.getElementById('verifyCheckbox');
+  const status=document.getElementById('verifyStatus');
+  const site=document.getElementById('site');
+
+  setTimeout(()=>{
+    intro.classList.add('hidden');
+    verify.classList.add('show');
+  },4200);
+  setTimeout(()=>intro.remove(),5300);
+
+  checkbox.addEventListener('click',()=>{
+    if(checkbox.classList.contains('checked')) return;
+    checkbox.classList.add('checked');
+    checkbox.setAttribute('aria-pressed','true');
+    verify.classList.add('passed');
+    status.textContent='Verification complete — redirecting…';
+    setTimeout(()=>{
+      verify.classList.remove('show');
+      site.classList.add('show');
+    },950);
+    setTimeout(()=>verify.remove(),1750);
+  });
+});
+</script>
 </body>
 </html>
